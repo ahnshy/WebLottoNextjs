@@ -9,6 +9,16 @@ const openDb = async () => {
     });
 };
 
+// Function to get win count by slug (drwNo)
+export const getWinNo = async (slug: string) => {
+    const db = await openDb();
+
+    const result = await db.get(`SELECT * FROM lottery WHERE drwNo = ?`, [slug]);
+
+    await db.close();
+    return result;
+};
+
 export const insertData = async (dataArray: LotteryType[]) => {
     const db = await openDb();
 
