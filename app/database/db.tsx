@@ -9,7 +9,15 @@ const openDb = async () => {
     });
 };
 
-// Function to get win count by slug (drwNo)
+export const gwtAll = async () => {
+    const db = await openDb();
+
+    const result = await db.get(`SELECT * FROM lottery`);
+
+    await db.close();
+    return result;
+};
+
 export const getWinNo = async (slug: string) => {
     const db = await openDb();
 
