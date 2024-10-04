@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 import { getAll } from '../database/db';
-import { LotteryType } from "../types/lottery";
+import {MAX_LOTTO_NUMBER, LotteryType} from "../types/lottery";
 
-export const MAX_LOTTO_NUMBER = 45; // 로또 번호의 최대값
 let trainedModel: tf.LayersModel | null = null; // 전역 변수로 모델 저장
 
 async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor; ys: tf.Tensor }> {
