@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
-import { gwtAll } from '../database/db';
+import { getAll } from '../database/db';
 import { LotteryType } from "../types/lottery";
 
 export const MAX_LOTTO_NUMBER = 45; // 로또 번호의 최대값
@@ -34,7 +34,7 @@ async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor
 
 export async function trainModel(): Promise<tf.LayersModel> {
     const lottoData: LotteryType[] = [];
-    const winNoData = await gwtAll();
+    const winNoData = await getAll();
 
     if (winNoData) {
         lottoData.push(winNoData);
