@@ -33,12 +33,7 @@ async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor
 }
 
 export async function trainModel(): Promise<tf.LayersModel> {
-    const lottoData: LotteryType[] = [];
-    const winNoData = await getAll();
-
-    if (winNoData) {
-        lottoData.push(winNoData);
-    }
+    const lottoData: LotteryType[] = await getAll();
 
     const { xs, ys } = await preprocessData(lottoData);
 
