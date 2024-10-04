@@ -3,6 +3,7 @@ import { getAll } from '../database/db';
 import { LotteryType } from "../types/lottery";
 
 export const MAX_LOTTO_NUMBER = 45; // 로또 번호의 최대값
+let trainedModel: tf.LayersModel | null = null; // 전역 변수로 모델 저장
 
 async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor; ys: tf.Tensor }> {
     const inputs: number[][] = [];
@@ -18,11 +19,8 @@ async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor
             entry.drwtNo6,
         ];
 
-        // Normalize numbers
         const normalized = numbers.map(num => num / MAX_LOTTO_NUMBER);
         inputs.push(normalized);
-
-        // Set output to the same normalized values for training
         outputs.push(normalized);
     }
 
@@ -33,8 +31,11 @@ async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor
 }
 
 export async function trainModel(): Promise<tf.LayersModel> {
-    const lottoData: LotteryType[] = await getAll();
+    if (trainedModel) {
+        return trainedModel;
+    }
 
+    const lottoData: LotteryType[] = await getAll();
     const { xs, ys } = await preprocessData(lottoData);
 
     const model = tf.sequential();
@@ -44,11 +45,6 @@ export async function trainModel(): Promise<tf.LayersModel> {
     model.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
 
     await model.fit(xs, ys, { epochs: 100 });
+    trainedModel = model;
     return model;
 }
-
-// export async function GetExtractNumber(): Promise<tf.LayersModel> {
-//
-//     trainModel()
-//     return model;
-// }
