@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-//import {gwtAll} from "@/app/database/db";
+//import {getAll} from "@/app/database/db";
 //import {MAX_LOTTO_NUMBER, model, trainModel} from "../../../model/sequential";
 //import * as tf from '@tensorflow/tfjs';
 
@@ -10,7 +10,7 @@ export async  function GET(req: NextRequest){
     // }
     //
     // // 입력값을 가져오기 (이 경우 과거 로또 번호의 평균을 사용)
-    // const inputData = await gwtAll(); // 모든 과거 데이터 가져오기
+    // const inputData = await getAll(); // 모든 과거 데이터 가져오기
     // const { xs } = await preprocessData(inputData);
     //
     // // 과거 데이터에서 하나의 샘플을 선택하여 예측에 사용
