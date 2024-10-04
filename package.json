@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.21.0",
+    "@nextui-org/button": "2.0.37",
     "next": "14.2.14",
     "next-themes": "^0.2.1",
     "react": "^18",
