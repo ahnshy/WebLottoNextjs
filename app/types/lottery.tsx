@@ -1,3 +1,5 @@
+export const MAX_LOTTO_NUMBER = 45; // 로또 번호의 최대값
+
 export interface LotteryType {
   returnValue: string;
   drwNo: number;
