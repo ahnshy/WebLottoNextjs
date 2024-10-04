@@ -52,8 +52,8 @@ export async function trainModel(): Promise<tf.LayersModel> {
     return model;
 }
 
-export async function GetExtractNumber(): Promise<tf.LayersModel> {
-
-    trainModel()
-    return model;
-}
+// export async function GetExtractNumber(): Promise<tf.LayersModel> {
+//
+//     trainModel()
+//     return model;
+// }
