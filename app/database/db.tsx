@@ -12,7 +12,8 @@ const openDb = async () => {
 export const getAll = async () => {
     const db = await openDb();
 
-    const result = await db.get(`SELECT * FROM lottery`);
+    //const result = await db.get(`SELECT * FROM lottery`);
+    const result: LotteryType[]  = await db.all(`SELECT * FROM lottery`);
 
     await db.close();
     return result;
