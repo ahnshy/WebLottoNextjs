@@ -9,7 +9,7 @@ const openDb = async () => {
     });
 };
 
-export const gwtAll = async () => {
+export const getAll = async () => {
     const db = await openDb();
 
     const result = await db.get(`SELECT * FROM lottery`);
