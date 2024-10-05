@@ -31,13 +31,8 @@ export const trainModel = async (): Promise<void> => {
         metrics: ['accuracy'],
     });
 
-    //const data: LotteryType[];
-    const data: LotteryType[] = [];
-    const winNoData =  await getAll();
-
-    if (winNoData) {
-        data.push(winNoData);
-    }
+    //const data: LotteryType[] = [];
+    const data: LotteryType[]=  await getAll();
 
     const xs = tf.tensor2d(data.map(row => [row.drwtNo1, row.drwtNo2, row.drwtNo3, row.drwtNo4, row.drwtNo5, row.drwtNo6]));
     const ys = tf.tensor2d(data.map(row => [row.drwtNo1, row.drwtNo2, row.drwtNo3, row.drwtNo4, row.drwtNo5, row.drwtNo6]));
