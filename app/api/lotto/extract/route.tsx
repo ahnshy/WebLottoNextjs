@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { trainedModel, predictNumbers, trainModel} from "@/app/model/neuralnetwork";
 import {getAll} from "@/app/database/db";
-import {calculateNumberFrequency, generatePredictedNumbers, generatePredictedNumbersEx} from "@/app/model/frequency";
+import {calculateNumberFrequency, generatePredictedNumbersEx} from "@/app/model/frequency";
 import {LotteryType} from "@/app/types/lottery";
 
 
