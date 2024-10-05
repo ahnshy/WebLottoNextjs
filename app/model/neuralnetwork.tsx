@@ -3,8 +3,12 @@ import * as tf from '@tensorflow/tfjs';
 import { getAll } from '../database/db';
 import { LotteryType } from '../types/lottery';
 
-export let trainedModel: tf.LayersModel;
+let trainDnnModel: tf.LayersModel | null = null; // 전역 변수로 모델 저장
+
 export const createModel = (): tf.LayersModel => {
+    if (trainDnnModel) {
+        return trainDnnModel;
+    }
     const model = tf.sequential();
     model.add(tf.layers.dense({ units: 64, activation: 'relu', inputShape: [6] }));
     model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
@@ -14,11 +18,17 @@ export const createModel = (): tf.LayersModel => {
         loss: 'categoricalCrossentropy',
         metrics: ['accuracy'],
     });
-    return model;
+
+    trainDnnModel = model;
+    return trainDnnModel;
 };
 
 //export const trainModel = async (model: tf.LayersModel): Promise<void> => {
-export const trainModel = async (): Promise<void> => {
+export const trainModel = async (): Promise<tf.LayersModel> => {
+
+    if (trainDnnModel) {
+        return trainDnnModel;
+    }
 
     const model = tf.sequential();
 
@@ -42,7 +52,8 @@ export const trainModel = async (): Promise<void> => {
         batchSize: 32,
     });
 
-    return model;
+    trainDnnModel = model;
+    return trainDnnModel;
 };
 
 export const predictNumbers = (model: tf.LayersModel): number[][] => {
