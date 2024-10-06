@@ -27,18 +27,17 @@ const Home: React.FC = () => {
 
     const fetchLottoNumbers = async () => {
         setLoading(true);
-        setError(null); // Reset error state
+        setError(null);
         try {
-            const response = await fetch('/api/lotto/random'); // 로또 번호를 가져오는 API 엔드포인트
+            const response = await fetch('/api/lotto/random');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
             setDrawCount(prevCount => prevCount + 1);
-            // 새 로또 회차를 추가합니다.
             setLottoDraws(prevDraws => [
                 { round: drawCount + 1, numbers: data.data },
-                ...prevDraws, // 가장 최근의 회차가 위에 오도록 배열 순서를 변경
+                ...prevDraws,
             ]);
         } catch (error) {
             setError('Failed to fetch lotto numbers');
@@ -55,21 +54,19 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         fetchLottoNumbers();
-    }, []); // 컴포넌트가 마운트될 때 한 번만 호출
+    }, []);
 
-    // 공 색상을 결정하는 함수
     const getBallColor = (number: number): string => {
-        if (number <= 10) return '#fbc400'; // 10 이하
-        if (number <= 20) return '#69c8f2'; // 10~20
-        if (number <= 30) return '#ff7272'; // 20~30
-        if (number <= 40) return '#aaa'; // 30~40
-        return '#b0d840'; // 40~50
+        if (number <= 10) return '#fbc400';
+        if (number <= 20) return '#69c8f2';
+        if (number <= 30) return '#ff7272';
+        if (number <= 40) return '#aaa';
+        return '#b0d840';
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            {/* 사이드바 */}
-            <aside className="w-64 bg-gray-800 text-white p-4">
+        <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+            <aside className="w-full md:w-64 bg-gray-800 text-white p-4">
                 <h1 className="text-2xl font-bold">Dashboard</h1>
                 <nav className="mt-6">
                     <ul>
@@ -86,16 +83,13 @@ const Home: React.FC = () => {
                 </nav>
             </aside>
 
-            {/* 메인 컨텐츠 */}
             <main className="flex-1 p-6 overflow-y-auto">
-                {/* 상단 헤더 */}
                 <div className="flex justify-between">
                     <h2 className="text-3xl font-semibold">Home</h2>
                     <div>December, 12</div>
                 </div>
 
-                {/* 프로젝트 카드들 */}
-                <div className="grid grid-cols-3 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     {selectedProject !== null && (
                         <div className="bg-white p-4 rounded-lg shadow-md">
                             <h3 className="font-bold">{projects[selectedProject].title}</h3>
@@ -112,20 +106,19 @@ const Home: React.FC = () => {
                     )}
                 </div>
 
-                {/* 로또 번호 출력 */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Lotto Prediction Numbers</h3>
                     <div className="mt-2 flex flex-col">
-                        <div className="flex justify-between mb-4">
+                        <div className="flex justify-between mb-4 flex-col md:flex-row">
                             <button
                                 onClick={resetLottoDraws}
-                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                className="w-full md:w-auto px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mb-2 md:mb-0"
                             >
                                 Reset Draws
                             </button>
                             <button
                                 onClick={fetchLottoNumbers}
-                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                className="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                             >
                                 Fetch More Numbers
                             </button>
@@ -163,7 +156,6 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Client Messages */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Client Messages</h3>
                     <div className="mt-4">
