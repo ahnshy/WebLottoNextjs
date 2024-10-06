@@ -48,6 +48,11 @@ const Home: React.FC = () => {
         }
     };
 
+    const resetLottoDraws = () => {
+        setLottoDraws([]);
+        setDrawCount(0);
+    };
+
     useEffect(() => {
         fetchLottoNumbers();
     }, []); // 컴포넌트가 마운트될 때 한 번만 호출
@@ -145,6 +150,12 @@ const Home: React.FC = () => {
                         className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                     >
                         Fetch More Numbers
+                    </button>
+                    <button
+                        onClick={resetLottoDraws}
+                        className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                        Reset Draws
                     </button>
                 </div>
 
