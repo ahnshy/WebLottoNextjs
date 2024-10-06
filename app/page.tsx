@@ -16,9 +16,10 @@ const projects: Project[] = [
 
 const Home: React.FC = () => {
     const [selectedProject, setSelectedProject] = useState<number | null>(null);
-    const [lottoNumbers, setLottoNumbers] = useState<number[]>([]);
+    const [lottoDraws, setLottoDraws] = useState<{ round: number; numbers: number[] }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [drawCount, setDrawCount] = useState<number>(0);
 
     const handleProjectClick = (index: number) => {
         setSelectedProject(index);
@@ -33,8 +34,12 @@ const Home: React.FC = () => {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            // 이전 번호와 새로운 번호를 합쳐줍니다.
-            setLottoNumbers((prevNumbers) => [...prevNumbers, ...data.data]);
+            setDrawCount(prevCount => prevCount + 1);
+            // 새 로또 회차를 추가합니다.
+            setLottoDraws(prevDraws => [
+                ...prevDraws,
+                { round: drawCount + 1, numbers: data.data },
+            ]);
         } catch (error) {
             setError('Failed to fetch lotto numbers');
             console.error('Failed to fetch lotto numbers:', error);
@@ -46,6 +51,15 @@ const Home: React.FC = () => {
     useEffect(() => {
         fetchLottoNumbers();
     }, []); // 컴포넌트가 마운트될 때 한 번만 호출
+
+    // 공 색상을 결정하는 함수
+    const getBallColor = (number: number): string => {
+        if (number <= 10) return '#fbc400'; // 10 이하
+        if (number <= 20) return '#69c8f2'; // 10~20
+        if (number <= 30) return '#ff7272'; // 20~30
+        if (number <= 40) return '#aaa'; // 30~40
+        return '#b0d840'; // 40~50
+    };
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -96,18 +110,26 @@ const Home: React.FC = () => {
                 {/* 로또 번호 출력 */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Lotto Prediction Numbers</h3>
-                    <div className="mt-2 flex flex-wrap gap-4">
+                    <div className="mt-2 flex flex-col gap-4">
                         {loading ? (
                             <p className="text-gray-500">Loading...</p>
                         ) : error ? (
                             <p className="text-red-500">{error}</p>
                         ) : (
-                            lottoNumbers.map((number) => (
-                                <div
-                                    key={number}
-                                    className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full"
-                                >
-                                    {number}
+                            lottoDraws.map((draw) => (
+                                <div key={draw.round} className="flex items-center justify-between bg-gray-200 p-2 rounded-lg">
+                                    <h4 className="font-semibold">Round {draw.round}</h4>
+                                    <div className="flex gap-2">
+                                        {draw.numbers.map((number) => (
+                                            <div
+                                                key={number}
+                                                className="flex items-center justify-center w-12 h-12 rounded-full"
+                                                style={{ backgroundColor: getBallColor(number), color: 'white' }}
+                                            >
+                                                {number}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             ))
                         )}
