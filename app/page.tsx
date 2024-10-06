@@ -112,7 +112,9 @@ const Home: React.FC = () => {
                     <h3 className="font-bold">Lotto Prediction Numbers</h3>
                     <div className="mt-2 flex flex-col gap-4">
                         {loading ? (
-                            <p className="text-gray-500">Loading...</p>
+                            <div className="flex justify-center items-center h-32">
+                                <div className="loader border-t-transparent border-solid border-4 border-gray-300 rounded-full w-16 h-16 animate-spin"></div>
+                            </div>
                         ) : error ? (
                             <p className="text-red-500">{error}</p>
                         ) : (
