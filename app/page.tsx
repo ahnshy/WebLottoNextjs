@@ -118,22 +118,26 @@ const Home: React.FC = () => {
                         ) : error ? (
                             <p className="text-red-500">{error}</p>
                         ) : (
-                            lottoDraws.map((draw) => (
-                                <div key={draw.round} className="flex items-center justify-between bg-gray-200 p-2 rounded-lg">
-                                    <h4 className="font-semibold">Round {draw.round}</h4>
-                                    <div className="flex gap-2">
-                                        {draw.numbers.map((number) => (
-                                            <div
-                                                key={number}
-                                                className="flex items-center justify-center w-12 h-12 rounded-full"
-                                                style={{ backgroundColor: getBallColor(number), color: 'white' }}
-                                            >
-                                                {number}
-                                            </div>
-                                        ))}
+                            lottoDraws.map((draw) => {
+                                const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
+                                return (
+                                    <div key={draw.round} className="flex items-center justify-between bg-gray-200 p-2 rounded-lg">
+                                        <h4 className="font-semibold">Round {draw.round}</h4>
+                                        <div className="flex gap-2">
+                                            {draw.numbers.map((number) => (
+                                                <div
+                                                    key={number}
+                                                    className="flex items-center justify-center w-12 h-12 rounded-full"
+                                                    style={{ backgroundColor: getBallColor(number), color: 'white' }}
+                                                >
+                                                    {number}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <span className="font-semibold">Sum: {sum}</span>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                     <button
@@ -148,18 +152,7 @@ const Home: React.FC = () => {
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Client Messages</h3>
                     <div className="mt-4">
-                        <div className="border-b py-2">
-                            <p className="font-semibold">Stephanie</p>
-                            <p className="text-gray-500">I got your first assignment. It was quite good.</p>
-                        </div>
-                        <div className="border-b py-2">
-                            <p className="font-semibold">Mark</p>
-                            <p className="text-gray-500">Can you tell me about the progress of the project?</p>
-                        </div>
-                        <div className="py-2">
-                            <p className="font-semibold">David</p>
-                            <p className="text-gray-500">I'm waiting for your response.</p>
-                        </div>
+                        <p className="text-gray-500">Here you can display additional information or messages.</p>
                     </div>
                 </div>
             </main>
