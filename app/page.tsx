@@ -1,6 +1,6 @@
 "use client"; // 이 파일이 Client Component임을 명시합니다.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Project {
     title: string;
@@ -16,10 +16,36 @@ const projects: Project[] = [
 
 const Home: React.FC = () => {
     const [selectedProject, setSelectedProject] = useState<number | null>(null);
+    const [lottoNumbers, setLottoNumbers] = useState<number[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleProjectClick = (index: number) => {
         setSelectedProject(index);
     };
+
+    const fetchLottoNumbers = async () => {
+        setLoading(true);
+        setError(null); // Reset error state
+        try {
+            const response = await fetch('/api/lotto/random'); // 로또 번호를 가져오는 API 엔드포인트
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            // 이전 번호와 새로운 번호를 합쳐줍니다.
+            setLottoNumbers((prevNumbers) => [...prevNumbers, ...data.data]);
+        } catch (error) {
+            setError('Failed to fetch lotto numbers');
+            console.error('Failed to fetch lotto numbers:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLottoNumbers();
+    }, []); // 컴포넌트가 마운트될 때 한 번만 호출
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -65,6 +91,33 @@ const Home: React.FC = () => {
                             <p className="text-red-500">Days Left: {projects[selectedProject].daysLeft}</p>
                         </div>
                     )}
+                </div>
+
+                {/* 로또 번호 출력 */}
+                <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+                    <h3 className="font-bold">Lotto Prediction Numbers</h3>
+                    <div className="mt-2 flex flex-wrap gap-4">
+                        {loading ? (
+                            <p className="text-gray-500">Loading...</p>
+                        ) : error ? (
+                            <p className="text-red-500">{error}</p>
+                        ) : (
+                            lottoNumbers.map((number) => (
+                                <div
+                                    key={number}
+                                    className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full"
+                                >
+                                    {number}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    <button
+                        onClick={fetchLottoNumbers}
+                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                        Fetch More Numbers
+                    </button>
                 </div>
 
                 {/* Client Messages */}
