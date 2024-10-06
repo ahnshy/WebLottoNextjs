@@ -118,16 +118,16 @@ const Home: React.FC = () => {
                     <div className="mt-2 flex flex-col">
                         <div className="flex justify-between mb-4">
                             <button
-                                onClick={fetchLottoNumbers}
-                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                            >
-                                Fetch More Numbers
-                            </button>
-                            <button
                                 onClick={resetLottoDraws}
                                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                             >
                                 Reset Draws
+                            </button>
+                            <button
+                                onClick={fetchLottoNumbers}
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Fetch More Numbers
                             </button>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
