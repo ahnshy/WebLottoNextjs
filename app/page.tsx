@@ -37,8 +37,8 @@ const Home: React.FC = () => {
             setDrawCount(prevCount => prevCount + 1);
             // 새 로또 회차를 추가합니다.
             setLottoDraws(prevDraws => [
-                ...prevDraws,
                 { round: drawCount + 1, numbers: data.data },
+                ...prevDraws, // 가장 최근의 회차가 위에 오도록 배열 순서를 변경
             ]);
         } catch (error) {
             setError('Failed to fetch lotto numbers');
@@ -115,48 +115,52 @@ const Home: React.FC = () => {
                 {/* 로또 번호 출력 */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Lotto Prediction Numbers</h3>
-                    <div className="mt-2 grid grid-cols-1 gap-4">
-                        {loading ? (
-                            <div className="flex justify-center items-center h-32">
-                                <div className="loader border-t-transparent border-solid border-4 border-gray-300 rounded-full w-16 h-16 animate-spin"></div>
-                            </div>
-                        ) : error ? (
-                            <p className="text-red-500">{error}</p>
-                        ) : (
-                            lottoDraws.map((draw) => {
-                                const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
-                                return (
-                                    <div key={draw.round} className="flex flex-col items-center bg-gray-200 p-2 rounded-lg">
-                                        <h4 className="font-semibold">Round {draw.round}</h4>
-                                        <div className="flex gap-2">
-                                            {draw.numbers.map((number) => (
-                                                <div
-                                                    key={number}
-                                                    className="flex items-center justify-center w-12 h-12 rounded-full"
-                                                    style={{ backgroundColor: getBallColor(number), color: 'white' }}
-                                                >
-                                                    {number}
-                                                </div>
-                                            ))}
+                    <div className="mt-2 flex flex-col">
+                        <div className="flex justify-between mb-4">
+                            <button
+                                onClick={fetchLottoNumbers}
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Fetch More Numbers
+                            </button>
+                            <button
+                                onClick={resetLottoDraws}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                Reset Draws
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-4">
+                            {loading ? (
+                                <div className="flex justify-center items-center h-32">
+                                    <div className="loader border-t-transparent border-solid border-4 border-gray-300 rounded-full w-16 h-16 animate-spin"></div>
+                                </div>
+                            ) : error ? (
+                                <p className="text-red-500">{error}</p>
+                            ) : (
+                                lottoDraws.map((draw) => {
+                                    const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
+                                    return (
+                                        <div key={draw.round} className="flex flex-col items-center bg-gray-200 p-2 rounded-lg">
+                                            <h4 className="font-semibold">Round {draw.round}</h4>
+                                            <div className="flex gap-2">
+                                                {draw.numbers.map((number) => (
+                                                    <div
+                                                        key={number}
+                                                        className="flex items-center justify-center w-12 h-12 rounded-full"
+                                                        style={{ backgroundColor: getBallColor(number), color: 'white' }}
+                                                    >
+                                                        {number}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <span className="font-semibold">Sum: {sum}</span>
                                         </div>
-                                        <span className="font-semibold">Sum: {sum}</span>
-                                    </div>
-                                );
-                            })
-                        )}
+                                    );
+                                })
+                            )}
+                        </div>
                     </div>
-                    <button
-                        onClick={fetchLottoNumbers}
-                        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                    >
-                        Fetch More Numbers
-                    </button>
-                    <button
-                        onClick={resetLottoDraws}
-                        className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                    >
-                        Reset Draws
-                    </button>
                 </div>
 
                 {/* Client Messages */}
