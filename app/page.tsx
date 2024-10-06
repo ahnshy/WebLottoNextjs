@@ -1,6 +1,26 @@
-import React from 'react';
+"use client"; // 이 파일이 Client Component임을 명시합니다.
 
-export default function Home() {
+import React, { useState } from 'react';
+
+interface Project {
+    title: string;
+    progress: number;
+    daysLeft: number;
+}
+
+const projects: Project[] = [
+    { title: 'Web Designing', progress: 60, daysLeft: 2 },
+    { title: 'Mobile App Development', progress: 50, daysLeft: 3 },
+    { title: 'SEO Optimization', progress: 70, daysLeft: 5 },
+];
+
+const Home: React.FC = () => {
+    const [selectedProject, setSelectedProject] = useState<number | null>(null);
+
+    const handleProjectClick = (index: number) => {
+        setSelectedProject(index);
+    };
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* 사이드바 */}
@@ -8,9 +28,15 @@ export default function Home() {
                 <h1 className="text-2xl font-bold">Dashboard</h1>
                 <nav className="mt-6">
                     <ul>
-                        <li className="mb-4">In Progress</li>
-                        <li className="mb-4">Upcoming</li>
-                        <li className="mb-4">Total Projects</li>
+                        {projects.map((project, index) => (
+                            <li
+                                key={index}
+                                className="mb-4 cursor-pointer"
+                                onClick={() => handleProjectClick(index)}
+                            >
+                                {project.title}
+                            </li>
+                        ))}
                     </ul>
                 </nav>
             </aside>
@@ -25,35 +51,20 @@ export default function Home() {
 
                 {/* 프로젝트 카드들 */}
                 <div className="grid grid-cols-3 gap-6 mt-6">
-                    <div className="bg-white p-4 rounded-lg shadow-md">
-                        <h3 className="font-bold">Web Designing</h3>
-                        <p className="text-gray-500">Prototyping</p>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                    {selectedProject !== null && (
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                            <h3 className="font-bold">{projects[selectedProject].title}</h3>
+                            <p className="text-gray-500">Prototyping</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div
+                                    className="bg-blue-600 h-2 rounded-full"
+                                    style={{ width: `${projects[selectedProject].progress}%` }}
+                                />
+                            </div>
+                            <p className="mt-2">Progress: {projects[selectedProject].progress}%</p>
+                            <p className="text-red-500">Days Left: {projects[selectedProject].daysLeft}</p>
                         </div>
-                        <p className="mt-2">Progress: 60%</p>
-                        <p className="text-red-500">2 Days Left</p>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-lg shadow-md">
-                        <h3 className="font-bold">Web Designing</h3>
-                        <p className="text-gray-500">Prototyping</p>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '50%' }}></div>
-                        </div>
-                        <p className="mt-2">Progress: 50%</p>
-                        <p className="text-red-500">2 Days Left</p>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-lg shadow-md">
-                        <h3 className="font-bold">Web Designing</h3>
-                        <p className="text-gray-500">Prototyping</p>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '70%' }}></div>
-                        </div>
-                        <p className="mt-2">Progress: 70%</p>
-                        <p className="text-red-500">2 Days Left</p>
-                    </div>
+                    )}
                 </div>
 
                 {/* Client Messages */}
@@ -77,4 +88,6 @@ export default function Home() {
             </main>
         </div>
     );
-}
+};
+
+export default Home;
