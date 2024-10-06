@@ -87,7 +87,7 @@ const Home: React.FC = () => {
             </aside>
 
             {/* 메인 컨텐츠 */}
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-6 overflow-y-auto">
                 {/* 상단 헤더 */}
                 <div className="flex justify-between">
                     <h2 className="text-3xl font-semibold">Home</h2>
@@ -115,7 +115,7 @@ const Home: React.FC = () => {
                 {/* 로또 번호 출력 */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
                     <h3 className="font-bold">Lotto Prediction Numbers</h3>
-                    <div className="mt-2 flex flex-col gap-4">
+                    <div className="mt-2 grid grid-cols-1 gap-4">
                         {loading ? (
                             <div className="flex justify-center items-center h-32">
                                 <div className="loader border-t-transparent border-solid border-4 border-gray-300 rounded-full w-16 h-16 animate-spin"></div>
@@ -126,7 +126,7 @@ const Home: React.FC = () => {
                             lottoDraws.map((draw) => {
                                 const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
                                 return (
-                                    <div key={draw.round} className="flex items-center justify-between bg-gray-200 p-2 rounded-lg">
+                                    <div key={draw.round} className="flex flex-col items-center bg-gray-200 p-2 rounded-lg">
                                         <h4 className="font-semibold">Round {draw.round}</h4>
                                         <div className="flex gap-2">
                                             {draw.numbers.map((number) => (
