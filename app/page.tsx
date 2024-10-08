@@ -29,7 +29,8 @@ const Home: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('/api/lotto/random');
+            //const response = await fetch('/api/lotto/random');
+            const response = await fetch('/api/lotto/extract');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -135,7 +136,10 @@ const Home: React.FC = () => {
                                     const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
                                     return (
                                         <div key={draw.round} className="flex flex-col items-center bg-gray-200 p-2 rounded-lg">
-                                            <h4 className="font-semibold">Round {draw.round}</h4>
+                                            <div className="flex items-center">
+                                                <h4 className="font-semibold text-lg mr-4">Round {draw.round}</h4>
+                                                <span className="font-semibold">Sum: {sum}</span>
+                                            </div>
                                             <div className="flex gap-2">
                                                 {draw.numbers.map((number) => (
                                                     <div
@@ -147,7 +151,6 @@ const Home: React.FC = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <span className="font-semibold">Sum: {sum}</span>
                                         </div>
                                     );
                                 })
