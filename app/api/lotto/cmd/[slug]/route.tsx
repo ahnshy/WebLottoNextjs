@@ -10,9 +10,7 @@ export async  function GET(req: NextRequest,
   if (params.slug === null || params.slug === undefined)
     return new Response("",{ status : 200 });
 
-  let res = {
-
-  };
+  let res = {};
 
   try {
     const result = await getWinNo(params.slug);
