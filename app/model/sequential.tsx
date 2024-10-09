@@ -1,49 +1,67 @@
 import * as tf from '@tensorflow/tfjs';
 import { getAll } from '../database/db';
-import {MAX_LOTTO_NUMBER, LotteryType} from "../types/lottery";
+import { MAX_LOTTO_NUMBER, LotteryType } from "../types/lottery";
 
-let trainedModel: tf.LayersModel | null = null; // 전역 변수로 모델 저장
+class LottoModel {
+    private static instance: LottoModel | null = null;
+    private trainedModel: tf.LayersModel | null = null;
 
-async function preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor; ys: tf.Tensor }> {
-    const inputs: number[][] = [];
-    const outputs: number[][] = [];
+    private constructor() {}
 
-    for (const entry of lottoData) {
-        const numbers = [
-            entry.drwtNo1,
-            entry.drwtNo2,
-            entry.drwtNo3,
-            entry.drwtNo4,
-            entry.drwtNo5,
-            entry.drwtNo6,
-        ];
-
-        const normalized = numbers.map(num => num / MAX_LOTTO_NUMBER);
-        inputs.push(normalized);
-        outputs.push(normalized);
+    public static getInstance(): LottoModel {
+        if (!LottoModel.instance) {
+            LottoModel.instance = new LottoModel();
+        }
+        return LottoModel.instance;
     }
 
-    return {
-        xs: tf.tensor2d(inputs),
-        ys: tf.tensor2d(outputs),
-    };
-}
+    private async preprocessData(lottoData: LotteryType[]): Promise<{ xs: tf.Tensor; ys: tf.Tensor }> {
+        const inputs: number[][] = [];
+        const outputs: number[][] = [];
 
-export async function trainModel(): Promise<tf.LayersModel> {
-    if (trainedModel) {
-        return trainedModel;
+        for (const entry of lottoData) {
+            const numbers = [
+                entry.drwtNo1,
+                entry.drwtNo2,
+                entry.drwtNo3,
+                entry.drwtNo4,
+                entry.drwtNo5,
+                entry.drwtNo6,
+            ];
+
+            const normalized = numbers.map(num => num / MAX_LOTTO_NUMBER);
+            inputs.push(normalized);
+            outputs.push(normalized); // 여기서 ys는 입력과 동일하므로, 추후에 수정할 수 있음
+        }
+
+        return {
+            xs: tf.tensor2d(inputs),
+            ys: tf.tensor2d(outputs),
+        };
     }
 
-    const lottoData: LotteryType[] = await getAll();
-    const { xs, ys } = await preprocessData(lottoData);
+    public async trainModel(): Promise<tf.LayersModel> {
+        if (this.trainedModel) {
+            return this.trainedModel;
+        }
 
-    const model = tf.sequential();
-    model.add(tf.layers.dense({ units: 64, activation: 'relu', inputShape: [6] }));
-    model.add(tf.layers.dense({ units: 6, activation: 'sigmoid' }));
+        const lottoData: LotteryType[] = await getAll();
+        const { xs, ys } = await this.preprocessData(lottoData);
 
-    model.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
+        const model = tf.sequential();
+        model.add(tf.layers.dense({ units: 64, activation: 'relu', inputShape: [6] }));
+        model.add(tf.layers.dense({ units: 6, activation: 'sigmoid' }));
 
-    await model.fit(xs, ys, { epochs: 100 });
-    trainedModel = model;
-    return model;
+        model.compile({ loss: 'meanSquaredError', optimizer: 'adam' });
+
+        await model.fit(xs, ys, { epochs: 100 });
+        this.trainedModel = model;
+        return model;
+    }
 }
+
+// usage example
+// const lottoModel = LottoModel.getInstance();
+// lottoModel.trainModel().then(model => {
+//     console.log("모델이 성공적으로 훈련되었습니다.", model);
+// });
