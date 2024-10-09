@@ -22,14 +22,11 @@ export async  function GET(req: NextRequest){
         } catch (error) {
             console.error(`Error fetching data for draw number ${drwNo}:`, error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            results.push({ drwNo, error: errorMessage });
+            results.push({drwNo, error: errorMessage});
             break;
         }
     }
 
-    console.error(results);
-
-    // Insert the results into the SQLite database
     let res, numberStatus;
     try {
         await insertData(results);
