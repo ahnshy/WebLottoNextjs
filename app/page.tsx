@@ -9,9 +9,10 @@ interface Project {
 }
 
 const projects: Project[] = [
-    { title: 'Web Designing', progress: 60, daysLeft: 2 },
-    { title: 'Mobile App Development', progress: 50, daysLeft: 3 },
-    { title: 'SEO Optimization', progress: 70, daysLeft: 5 },
+    { title: 'Random', progress: 60, daysLeft: 2 },
+    { title: 'Probability of appearance', progress: 50, daysLeft: 3 },
+    { title: 'AI Predict', progress: 70, daysLeft: 5 },
+    { title: 'View previous winning numbers', progress: 70, daysLeft: 5 },
 ];
 
 const Home: React.FC = () => {
@@ -29,8 +30,8 @@ const Home: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            //const response = await fetch('/api/lotto/random');
-            const response = await fetch('/api/lotto/extract');
+            const response = await fetch('/api/lotto/random');
+            //const response = await fetch('/api/lotto/extract');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
