@@ -46,7 +46,5 @@ export async  function GET(req: NextRequest){
         numberStatus = 500;
     }
 
-    //console.error(response.data);
-
   return NextResponse.json(res, { status: numberStatus });
 }
