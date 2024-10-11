@@ -31,13 +31,11 @@ const Home: React.FC = () => {
         setError(null);
         try {
             const response = await fetch('/api/lotto/random');
-            //const response = await fetch('/api/lotto/extract');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
+
             const data = await response.json();
-            setDrawCount(prevCount => prevCount + 1);
-            setLottoDraws(prevDraws => [
+            setDrawCount((prevCount) => prevCount + 1);
+            setLottoDraws((prevDraws) => [
                 { round: drawCount + 1, numbers: data.data },
                 ...prevDraws,
             ]);
