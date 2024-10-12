@@ -27,3 +27,7 @@ class GianellaPattern {
 }
 
 export default GianellaPattern;
+
+// usage
+//const generator = GianellaPattern.getInstance();
+//const numbers: number[] = generator.generateNumbers();
