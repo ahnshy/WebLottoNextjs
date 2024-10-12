@@ -6,7 +6,7 @@ import { LotteryType } from '../types/lottery';
 class DnnModel {
     private static instance: tf.LayersModel | null = null;
 
-    private constructor() {} // Prevent direct instantiation
+    private constructor() {}
 
     public static getInstance(): tf.LayersModel {
         if (!this.instance) {
@@ -48,7 +48,7 @@ class DnnModel {
         const model = this.getInstance();
         const tensorInput = tf.tensor2d(input);
         const prediction = model.predict(tensorInput) as tf.Tensor;
-        return prediction.arraySync() as number[][]; // Return prediction results
+        return prediction.arraySync() as number[][];
     }
 }
 
