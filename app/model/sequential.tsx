@@ -31,7 +31,7 @@ class LottoModel {
 
             const normalized = numbers.map(num => num / MAX_LOTTO_NUMBER);
             inputs.push(normalized);
-            outputs.push(normalized); // 여기서 ys는 입력과 동일하므로, 추후에 수정할 수 있음
+            outputs.push(normalized);
         }
 
         return {
