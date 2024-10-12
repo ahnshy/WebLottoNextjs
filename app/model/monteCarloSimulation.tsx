@@ -47,9 +47,8 @@ class LotteryNumberGenerator {
     }
 }
 
-// Usage monte Carlo Simulation
-// const lotteryGenerator = LotteryNumberGenerator.getInstance();
-// const trials = 1000;
-// const simulations = lotteryGenerator.monteCarloSimulation(trials);
-
-// console.log(simulations);
+// Usage
+//const lotteryGenerator = LotteryNumberGenerator.getInstance();
+//const trials = 1000;
+//const simulations = lotteryGenerator.monteCarloSimulation(trials);
+//console.log(simulations);
