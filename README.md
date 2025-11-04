@@ -18,7 +18,7 @@ Generate prediction picks, compare with all historical winning numbers, explore 
 - **Storage**: User picks are stored in `draws` (Supabase). App reload shows the latest list.
 - **UX / UI**
   - **Night / Dark / Light** theme toggle (icon buttons)
-  - **Sidebar** with **fold** button (like ChatGPT), responsive layouts
+  - **Sidebar** with **fold** button, responsive layouts
   - **Inline loading** for heavy views (backdrop + spinner while switching to table/boards)
   - **Color‑coded number balls**: 1–10 mustard, 11–20 orange‑red, 21–30 sky, 31–40 gray, 41–45 light‑green
   - Number balls have **soft inner highlights** and **white text with glow**
