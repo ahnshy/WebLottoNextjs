@@ -1,172 +1,98 @@
-"use client"; // 이 파일이 Client Component임을 명시합니다.
+'use client';
+import * as React from 'react';
+import { Grid, Paper, Stack, Typography, ButtonGroup, Button, useMediaQuery, Backdrop, CircularProgress } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
+import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import dynamic from 'next/dynamic';
+import { fetchDraws, saveDraw, fetchLottoHistoryAll, deleteDraws, LottoRow, DrawRow } from './actions';
+import { useNav } from '@/components/NavContext';
 
-import React, { useState, useEffect } from 'react';
+const DrawList = dynamic(()=>import('@/components/DrawList'));
+const CompareView = dynamic(()=>import('@/components/CompareView'));
+const PatternBoards = dynamic(()=>import('@/components/PatternBoards'), { loading: ()=> <Backdrop open sx={{color:'#fff', zIndex:(t)=>t.zIndex.modal+1}}><CircularProgress/></Backdrop> });
+const WinningsTable = dynamic(()=>import('@/components/WinningsTable'), { loading: ()=> <Backdrop open sx={{color:'#fff', zIndex:(t)=>t.zIndex.modal+1}}><CircularProgress/></Backdrop> });
 
-interface Project {
-    title: string;
-    progress: number;
-    daysLeft: number;
+export default function Page(){
+  const [draws, setDraws] = React.useState<DrawRow[]>([]);
+  const [selected, setSelected] = React.useState<DrawRow | null>(null);
+  const [history, setHistory] = React.useState<LottoRow[]>([]);
+  const [checked, setChecked] = React.useState<Set<string>>(new Set());
+  const [loadingView, setLoadingView] = React.useState(false);
+  const { section } = useNav();
+
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMdOnly = useMediaQuery(theme.breakpoints.between('sm','md'));
+  const ballSize = isXs ? 22 : isMdOnly ? 28 : 36;
+
+  React.useEffect(()=>{ (async()=>{
+    const [d, h] = await Promise.all([fetchDraws(), fetchLottoHistoryAll()]);
+    setDraws(d); if(d.length) setSelected(d[0]); setHistory(h);
+  })(); }, []);
+
+  // show wait spinner briefly when switching to heavy views
+  React.useEffect(()=>{
+    if(section==='당첨번호보기' || section==='당첨 패턴 분석'){
+      setLoadingView(true);
+      const t = setTimeout(()=>setLoadingView(false), 300); // minimal UX hint
+      return ()=>clearTimeout(t);
+    } else {
+      setLoadingView(false);
+    }
+  }, [section]);
+
+  const generate = ()=>{ const s=new Set<number>(); while(s.size<6) s.add(1+Math.floor(Math.random()*45)); return Array.from(s).sort((a,b)=>a-b); };
+  const onGenerate = async ()=>{ const g=generate(); const row = await saveDraw(g); setDraws(prev=>[row, ...prev]); setSelected(row); };
+
+  const toggleCheck = (id:string)=> setChecked(prev=>{ const n=new Set(prev); n.has(id)?n.delete(id):n.add(id); return n; });
+  const selectAll  = ()=> setChecked(new Set(draws.map(d=>d.id)));
+  const clearAll   = ()=> setChecked(new Set());
+  const removeSelected = async ()=>{ if(checked.size===0) return; const ids=Array.from(checked); await deleteDraws(ids); setDraws(prev=>prev.filter(d=>!checked.has(d.id))); if(selected && checked.has(selected.id)) setSelected(null); setChecked(new Set()); };
+  const removeOne = async (id:string)=>{ await deleteDraws([id]); setDraws(prev=>prev.filter(d=>d.id!==id)); if(selected?.id===id) setSelected(null); setChecked(prev=>{ const n=new Set(prev); n.delete(id); return n; }); };
+
+  return (
+    <Grid container spacing={2} sx={{ flexWrap:{ xs:'wrap', md:'nowrap' } }}>
+      {/* LEFT */}
+      <Grid item xs={12} md sx={{ order:{ xs:2, md:1 }, flexBasis:{ xs:'100%', md:580 }, flexGrow:1, minWidth:0 }}>
+        <Paper sx={{ p:2, position:'relative', minHeight: 200 }}>
+          {section==='당첨번호보기' && <WinningsTable rows={history} />}
+          {section==='당첨 패턴 분석' && <PatternBoards rows={history} />}
+          {section==='예상번호 추출' && (
+            <Stack spacing={1}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="subtitle2">최근 추출</Typography>
+                <Button startIcon={<AutoAwesomeIcon/>} variant="contained" onClick={onGenerate}>새로 추출</Button>
+              </Stack>
+              <ButtonGroup variant="outlined" size="small" sx={{ alignSelf:'flex-start', borderRadius:2, overflow:'hidden', backdropFilter:'blur(6px)',
+                '& .MuiButton-root':{ textTransform:'none', fontWeight:700, px:1.5, gap:1, borderColor:'divider' },
+                '& .MuiButton-root:not(:last-of-type)':{ borderRightColor:'divider' } }}>
+                <Button onClick={selectAll} startIcon={<SelectAllIcon />}>전체 선택</Button>
+                <Button onClick={clearAll} startIcon={<IndeterminateCheckBoxOutlinedIcon />}>선택 해제</Button>
+                <Button color="error" onClick={removeSelected} startIcon={<DeleteSweepIcon />}
+                  sx={{ bgcolor:(t)=> t.palette.mode==='light' ? 'error.50' : 'rgba(244,67,54,.10)',
+                        '&:hover': { bgcolor:(t)=> t.palette.mode==='light' ? 'error.100' : 'rgba(244,67,54,.18)' } }}>선택 삭제</Button>
+              </ButtonGroup>
+              <DrawList ballSize={ballSize} draws={draws} selectedId={selected?.id ?? null}
+                        onSelect={(r)=>setSelected(r)} checkedIds={checked} onToggleCheck={toggleCheck} onDeleteOne={removeOne} />
+            </Stack>
+          )}
+          <Backdrop open={loadingView} sx={{ position:'absolute', inset:0, color:'#fff', zIndex:(t)=>t.zIndex.modal+1 }}>
+            <CircularProgress />
+          </Backdrop>
+        </Paper>
+      </Grid>
+
+      {/* RIGHT: only for 예상번호 추출 */}
+      {section==='예상번호 추출' && (
+        <Grid item xs={12} md sx={{ order:{ xs:1, md:2 }, flexBasis:{ xs:'100%', md:420 }, flexGrow:0, flexShrink:0 }}>
+          <Paper sx={{ p:2 }}>
+            <CompareView ballSize={ballSize} pick={selected?.numbers ?? null} history={history} />
+          </Paper>
+        </Grid>
+      )}
+    </Grid>
+  );
 }
-
-const projects: Project[] = [
-    { title: 'Random', progress: 60, daysLeft: 2 },
-    { title: 'Probability of appearance', progress: 50, daysLeft: 3 },
-    { title: 'AI Predict', progress: 70, daysLeft: 5 },
-    { title: 'View previous winning numbers', progress: 70, daysLeft: 5 },
-];
-
-const Home: React.FC = () => {
-    const [selectedProject, setSelectedProject] = useState<number | null>(null);
-    const [lottoDraws, setLottoDraws] = useState<{ round: number; numbers: number[] }[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [drawCount, setDrawCount] = useState<number>(0);
-
-    const handleProjectClick = (index: number) => {
-        setSelectedProject(index);
-    };
-
-    const fetchLottoNumbers = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch('/api/lotto/random');
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const data = await response.json();
-            setDrawCount((prevCount) => prevCount + 1);
-            setLottoDraws((prevDraws) => [
-                { round: drawCount + 1, numbers: data.data },
-                ...prevDraws,
-            ]);
-        } catch (error) {
-            setError('Failed to fetch lotto numbers');
-            console.error('Failed to fetch lotto numbers:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const resetLottoDraws = () => {
-        setLottoDraws([]);
-        setDrawCount(0);
-    };
-
-    useEffect(() => {
-        fetchLottoNumbers();
-    }, []);
-
-    const getBallColor = (number: number): string => {
-        if (number <= 10) return '#fbc400';
-        if (number <= 20) return '#69c8f2';
-        if (number <= 30) return '#ff7272';
-        if (number <= 40) return '#aaa';
-        return '#b0d840';
-    };
-
-    return (
-        <div className="flex flex-col md:flex-row h-screen bg-gray-100">
-            <aside className="w-full md:w-64 bg-gray-800 text-white p-4">
-                <h1 className="text-2xl font-bold">Dashboard</h1>
-                <nav className="mt-6">
-                    <ul>
-                        {projects.map((project, index) => (
-                            <li
-                                key={index}
-                                className="mb-4 cursor-pointer"
-                                onClick={() => handleProjectClick(index)}
-                            >
-                                {project.title}
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </aside>
-
-            <main className="flex-1 p-6 overflow-y-auto">
-                <div className="flex justify-between">
-                    <h2 className="text-3xl font-semibold">Home</h2>
-                    <div>December, 12</div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    {selectedProject !== null && (
-                        <div className="bg-white p-4 rounded-lg shadow-md">
-                            <h3 className="font-bold">{projects[selectedProject].title}</h3>
-                            <p className="text-gray-500">Prototyping</p>
-                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                <div
-                                    className="bg-blue-600 h-2 rounded-full"
-                                    style={{ width: `${projects[selectedProject].progress}%` }}
-                                />
-                            </div>
-                            <p className="mt-2">Progress: {projects[selectedProject].progress}%</p>
-                            <p className="text-red-500">Days Left: {projects[selectedProject].daysLeft}</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-bold">Lotto Prediction Numbers</h3>
-                    <div className="mt-2 flex flex-col">
-                        <div className="flex justify-between mb-4 flex-col md:flex-row">
-                            <button
-                                onClick={resetLottoDraws}
-                                className="w-full md:w-auto px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mb-2 md:mb-0"
-                            >
-                                Reset Draws
-                            </button>
-                            <button
-                                onClick={fetchLottoNumbers}
-                                className="w-full md:w-auto px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                            >
-                                Fetch More Numbers
-                            </button>
-                        </div>
-                        <div className="grid grid-cols-1 gap-4">
-                            {loading ? (
-                                <div className="flex justify-center items-center h-32">
-                                    <div className="loader border-t-transparent border-solid border-4 border-gray-300 rounded-full w-16 h-16 animate-spin"></div>
-                                </div>
-                            ) : error ? (
-                                <p className="text-red-500">{error}</p>
-                            ) : (
-                                lottoDraws.map((draw) => {
-                                    const sum = draw.numbers.reduce((acc, num) => acc + num, 0);
-                                    return (
-                                        <div key={draw.round} className="flex flex-col items-center bg-gray-200 p-2 rounded-lg">
-                                            <div className="flex items-center">
-                                                <h4 className="font-semibold text-lg mr-4">Round {draw.round}</h4>
-                                                <span className="font-semibold">Sum: {sum}</span>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                {draw.numbers.map((number) => (
-                                                    <div
-                                                        key={number}
-                                                        className="flex items-center justify-center w-12 h-12 rounded-full"
-                                                        style={{ backgroundColor: getBallColor(number), color: 'white' }}
-                                                    >
-                                                        {number}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-bold">Client Messages</h3>
-                    <div className="mt-4">
-                        <p className="text-gray-500">Here you can display additional information or messages.</p>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-};
-
-export default Home;
