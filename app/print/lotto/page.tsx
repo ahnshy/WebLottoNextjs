@@ -275,6 +275,123 @@ function RightInfoPanel() {
   );
 }
 
+function PortraitNumberMark({ number }: { number: number }) {
+  return (
+    <Box
+      sx={{
+        width: '7.2mm',
+        height: '7.2mm',
+        borderRadius: '999px',
+        bgcolor: '#2f2a28',
+        color: '#fff',
+        display: 'grid',
+        placeItems: 'center',
+        fontWeight: 900,
+        fontSize: '3.1mm',
+        lineHeight: 1,
+        boxShadow: 'inset 0 0.9mm 1.2mm rgba(255,255,255,0.18)',
+      }}
+    >
+      {number}
+    </Box>
+  );
+}
+
+function PortraitPickPanel({ label, picked }: { label: string; picked: number[] | undefined }) {
+  return (
+    <Box
+      sx={{
+        border: '0.24mm solid #d6bbb4',
+        bgcolor: '#fff',
+        display: 'grid',
+        gridTemplateColumns: '8.5mm 1fr',
+        minHeight: 0,
+      }}
+    >
+      <Box
+        sx={{
+          bgcolor: '#ea7b6f',
+          color: '#fff',
+          display: 'grid',
+          placeItems: 'center',
+          fontWeight: 900,
+          fontSize: '4mm',
+          borderRight: '0.22mm solid #d6bbb4',
+        }}
+      >
+        {label}
+      </Box>
+      <Box sx={{ p: '1.5mm', display: 'grid', gridTemplateRows: '4.4mm 1fr 3.6mm', minWidth: 0 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography sx={{ color: '#bf746d', fontWeight: 900, fontSize: '2.5mm', lineHeight: 1 }}>
+            Lotto 6/45
+          </Typography>
+          <Typography sx={{ color: '#bf746d', fontWeight: 800, fontSize: '2.25mm', lineHeight: 1 }}>
+            1,000
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '1.4mm', alignContent: 'center', alignItems: 'center' }}>
+          {(picked ?? []).map((number) => (
+            <PortraitNumberMark key={`${label}-${number}`} number={number} />
+          ))}
+        </Box>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(18, 1fr)', gap: '0.45mm', alignItems: 'end' }}>
+          {Array.from({ length: 18 }).map((_, index) => (
+            <Box key={`${label}-bar-${index}`} sx={{ height: index % 2 === 0 ? '3mm' : '2mm', bgcolor: '#111' }} />
+          ))}
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function PortraitSlip({ picks }: { picks: number[][] }) {
+  return (
+    <Box
+      sx={{
+        width: `${SLIP_HEIGHT_MM}mm`,
+        minHeight: `${SLIP_WIDTH_MM}mm`,
+        bgcolor: '#fffdfa',
+        color: '#2d2522',
+        border: '0.24mm solid #d5c8c0',
+        p: '2.4mm',
+        display: 'grid',
+        gridTemplateRows: '15mm repeat(5, minmax(0, 1fr)) 6mm',
+        gap: '1.5mm',
+        boxShadow: '0 18px 40px rgba(0,0,0,0.14)',
+        '@media print': {
+          boxShadow: 'none',
+        },
+      }}
+    >
+      <Box
+        sx={{
+          border: '0.24mm solid #d6bbb4',
+          bgcolor: '#fff',
+          display: 'grid',
+          placeItems: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <Typography sx={{ color: '#d86158', fontWeight: 900, fontSize: '6.2mm', lineHeight: 1 }}>
+          Lotto 6/45
+        </Typography>
+        <Typography sx={{ color: '#806f67', fontWeight: 800, fontSize: '2.4mm', lineHeight: 1 }}>
+          Mobile Print Slip
+        </Typography>
+      </Box>
+      {PLAY_LABELS.map((label, index) => (
+        <PortraitPickPanel key={label} label={label} picked={picks[index]} />
+      ))}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(24, 1fr)', gap: '0.7mm', alignItems: 'end' }}>
+        {Array.from({ length: 24 }).map((_, index) => (
+          <Box key={`portrait-bottom-${index}`} sx={{ height: index % 2 === 0 ? '5mm' : '3.2mm', bgcolor: '#111' }} />
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
 export default async function LottoPrintPage({
   searchParams,
 }: {
@@ -329,64 +446,59 @@ export default async function LottoPrintPage({
       <Box
         sx={{
           width: `${pageWidthMm}mm`,
-          height: `${pageHeightMm}mm`,
-          display: isPortrait ? 'block' : 'grid',
-          placeItems: isPortrait ? undefined : 'stretch',
+          minHeight: `${pageHeightMm}mm`,
+          display: 'grid',
+          placeItems: isPortrait ? 'start center' : 'stretch',
           position: 'relative',
           overflow: isPortrait ? 'auto' : 'hidden',
           bgcolor: '#f3efe8',
+          p: isPortrait ? '0' : 0,
         }}
       >
-        <Box
-          sx={{
-            width: `${SLIP_WIDTH_MM}mm`,
-            height: `${SLIP_HEIGHT_MM}mm`,
-            ...(isPortrait
-              ? {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  transform: `rotate(90deg) translateY(-${SLIP_HEIGHT_MM}mm)`,
-                  transformOrigin: 'top left',
-                }
-              : {
-                  position: 'relative',
-                  justifySelf: 'center',
-                  alignSelf: 'center',
-                  transform: 'none',
-                }),
-            bgcolor: '#fffdfa',
-            color: '#2d2522',
-            border: '0.24mm solid #d5c8c0',
-            px: '2mm',
-            pt: '1.7mm',
-            pb: '5.2mm',
-            overflow: 'hidden',
-            boxShadow: '0 18px 40px rgba(0,0,0,0.14)',
-            '@media print': {
-              boxShadow: 'none',
-            },
-          }}
-        >
-          <OmrRight />
-          <OmrBottom />
-
+        {isPortrait ? (
+          <PortraitSlip picks={picks} />
+        ) : (
           <Box
             sx={{
-              height: '100%',
-              display: 'grid',
-              gridTemplateColumns: '27mm repeat(5, minmax(0, 1fr)) 6mm',
-              gap: '1.6mm',
-              alignItems: 'stretch',
+              position: 'relative',
+              justifySelf: 'center',
+              alignSelf: 'center',
+              width: `${SLIP_WIDTH_MM}mm`,
+              height: `${SLIP_HEIGHT_MM}mm`,
+              transform: 'none',
+              bgcolor: '#fffdfa',
+              color: '#2d2522',
+              border: '0.24mm solid #d5c8c0',
+              px: '2mm',
+              pt: '1.7mm',
+              pb: '5.2mm',
+              overflow: 'hidden',
+              boxShadow: '0 18px 40px rgba(0,0,0,0.14)',
+              '@media print': {
+                boxShadow: 'none',
+              },
             }}
           >
-            <LeftBrandPanel />
-            {PLAY_LABELS.map((label, index) => (
-              <PickColumn key={label} label={label} picked={picks[index]} />
-            ))}
-            <RightInfoPanel />
+            <OmrRight />
+            <OmrBottom />
+
+            <Box
+              sx={{
+                height: '100%',
+                display: 'grid',
+                gridTemplateColumns: '27mm repeat(5, minmax(0, 1fr)) 6mm',
+                gap: '1.6mm',
+                alignItems: 'stretch',
+              }}
+            >
+              <LeftBrandPanel />
+              {PLAY_LABELS.map((label, index) => (
+                <PickColumn key={label} label={label} picked={picks[index]} />
+              ))}
+              <RightInfoPanel />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </>
   );
