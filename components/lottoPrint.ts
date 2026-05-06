@@ -5,7 +5,7 @@ import type { DrawRow } from '@/app/actions';
 const SLIP_WIDTH_MM = 182;
 const SLIP_HEIGHT_MM = 80;
 const MM_TO_PX = 96 / 25.4;
-const MOBILE_QUERY = '(max-width: 767px), (pointer: coarse)';
+const MOBILE_QUERY = '(max-width: 767px)';
 
 function centerPopup(width: number, height: number) {
   const left = Math.max(0, Math.round((window.screen.width - width) / 2));
